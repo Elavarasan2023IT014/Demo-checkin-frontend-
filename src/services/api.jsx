@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:3000/api',
+  baseURL: 'https://demo-checkin-backend.onrender.com/api',
 });
 
 api.interceptors.request.use((config) => {
