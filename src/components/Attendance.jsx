@@ -39,19 +39,19 @@ const Attendance = () => {
           setStatus(distance <= OFFICE_LOCATION.radius ? 'You are within the office boundary!' : 'You are outside the office boundary!');
 
           const today = new Date().toISOString().split('T')[0];
-          const attendance = await api.get('/attendance', { headers: { 'x-employee-token': token } }).then(res => 
+          const attendance = await api.get('api/attendance', { headers: { 'x-employee-token': token } }).then(res => 
             res.data.find(log => log.date === today && !log.checkOut)
           );
 
           if (distance <= OFFICE_LOCATION.radius && !attendance) {
-            const response = await api.post('/checkin', {}, { headers: { 'x-employee-token': token } });
+            const response = await api.post('api/checkin', {}, { headers: { 'x-employee-token': token } });
             if (response.data.message.includes('Checked in')) {
               const { title, body } = response.data.notification;
               setNotification({ title, body });
               sendNotification(title, body);
             }
           } else if (distance > OFFICE_LOCATION.radius && attendance) {
-            await api.post('/checkout', {}, { headers: { 'x-employee-token': token } });
+            await api.post('api/checkout', {}, { headers: { 'x-employee-token': token } });
             setNotification(null);
           }
         },
@@ -78,7 +78,7 @@ const Attendance = () => {
   const loadAttendance = async () => {
     if (!token) return;
     try {
-      const response = await api.get('/attendance', { headers: { 'x-employee-token': token } });
+      const response = await api.get('api/attendance', { headers: { 'x-employee-token': token } });
       setLogs(response.data);
     } catch (error) {
       console.error('Attendance fetch error:', error);

@@ -13,7 +13,7 @@ const Login = ({ setIsAuthenticated }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await api.post('/login', formData);
+      const response = await api.post('api/login', formData);
       localStorage.setItem('employeeToken', response.data.token);
       setIsAuthenticated(true);
       navigate('/attendance');

@@ -13,7 +13,7 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await api.post('/register', formData);
+      const response = await api.post('api//register', formData);
       localStorage.setItem('employeeToken', response.data.token);
       setMessage('Registration successful! Redirecting...');
       setTimeout(() => navigate('/attendance'), 2000);
