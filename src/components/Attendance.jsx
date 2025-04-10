@@ -97,7 +97,7 @@ const Attendance = () => {
     }
   };
 
-  const OFFICE_LOCATION = { lat: 12.5922, lng: 79.6141, radius: 200 };
+  const OFFICE_LOCATION = { lat: 11.644636, lng: 78.122278, radius: 100000 };
 
   const formatTime = (timeString) => {
     if (!timeString) return '-';
@@ -133,8 +133,8 @@ const Attendance = () => {
       )}
       <p className="status">{status}</p>
       <div className="location-info">
-        <p>Current Latitude: {currentLocation.lat?.toFixed(4) || 'Not available'}</p>
-        <p>Current Longitude: {currentLocation.lng?.toFixed(4) || 'Not available'}</p>
+        <p>Current Latitude: {currentLocation.lat?.toFixed(6) || 'Not available'}</p>
+        <p>Current Longitude: {currentLocation.lng?.toFixed(6) || 'Not available'}</p>
       </div>
       <table>
         <thead>
