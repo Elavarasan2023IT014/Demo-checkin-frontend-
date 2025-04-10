@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://demo-checkin-backend.onrender.com/api', // Ensure this matches the deployed backend
+  baseURL: 'https://demo-checkin-backend.onrender.com', // Ensure this matches the deployed backend
 });
 
 api.interceptors.request.use((config) => {
