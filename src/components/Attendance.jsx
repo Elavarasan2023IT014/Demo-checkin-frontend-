@@ -97,7 +97,7 @@ const Attendance = () => {
     }
   };
 
-  const OFFICE_LOCATION = { lat: 11.6457472, lng: 78.1221888, radius: 100 };
+  const OFFICE_LOCATION = { lat: 11.6457472, lng: 78.1221888, radius: 200 };
 
   const formatTime = (timeString) => {
     if (!timeString) return '-';
