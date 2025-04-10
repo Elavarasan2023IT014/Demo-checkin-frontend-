@@ -1,0 +1,54 @@
+.attendance-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .attendance-container h2 {
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+  }
+  
+  th, td {
+    border: 1px solid #ddd;
+    padding: 0.5rem;
+    text-align: left;
+  }
+  
+  th {
+    background-color: #f2f2f2;
+  }
+  
+  .status {
+    text-align: center;
+    margin-bottom: 1rem;
+    color: #28a745;
+  }
+
+  .notification {
+    background-color: #28a745;
+    color: white;
+    padding: 1rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+  
+  .notification h3 {
+    margin: 0;
+    font-size: 1.2rem;
+  }
+  
+  .notification p {
+    margin: 0.5rem 0 0;
+    font-size: 1rem;
+  }
