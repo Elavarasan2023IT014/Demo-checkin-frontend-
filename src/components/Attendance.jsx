@@ -6,15 +6,16 @@ const Attendance = () => {
   const [logs, setLogs] = useState([]);
   const [status, setStatus] = useState('');
   const [notification, setNotification] = useState(null);
+  const [currentLocation, setCurrentLocation] = useState({ lat: null, lng: null }); // Added state for location
   const token = localStorage.getItem('employeeToken');
 
   useEffect(() => {
     loadAttendance();
-    checkLocation(); // Initial check
+    checkLocation();
 
-    const interval = setInterval(checkLocation, 30000); // Check every 30 seconds
-    return () => clearInterval(interval); // Cleanup interval on unmount
-  }, [token]); // Dependency on token to re-run if it changes
+    const interval = setInterval(checkLocation, 30000);
+    return () => clearInterval(interval);
+  }, [token]);
 
   const checkLocation = async () => {
     if (!token) {
@@ -28,6 +29,7 @@ const Attendance = () => {
           const { latitude, longitude } = position.coords;
           console.log('Current Latitude:', latitude);
           console.log('Current Longitude:', longitude);
+          setCurrentLocation({ lat: latitude, lng: longitude }); // Update location state
           const distance = getDistance(latitude, longitude, OFFICE_LOCATION.lat, OFFICE_LOCATION.lng);
           console.log('Distance from office (meters):', distance);
           setStatus(distance <= OFFICE_LOCATION.radius ? 'You are within the office boundary!' : 'You are outside the office boundary!');
@@ -43,13 +45,11 @@ const Attendance = () => {
                 const { title, body } = response.data.notification || { title: 'Check-in', body: 'Successfully checked in' };
                 setNotification({ title, body });
                 sendNotification(title, body);
-                // Reload attendance after check-in
                 loadAttendance();
               }
             } else if (distance > OFFICE_LOCATION.radius && attendance) {
               await api.post('/checkout', {}, { headers: { 'x-employee-token': token } });
               setNotification(null);
-              // Reload attendance after check-out
               loadAttendance();
             }
           } catch (error) {
@@ -111,7 +111,6 @@ const Attendance = () => {
 
   const formatDate = (dateString) => {
     if (!dateString) return '-';
-    // Return the date string directly if it's already formatted (like "YYYY-MM-DD")
     if (typeof dateString === 'string' && dateString.includes('-')) {
       return dateString;
     }
@@ -133,6 +132,10 @@ const Attendance = () => {
         </div>
       )}
       <p className="status">{status}</p>
+      <div className="location-info">
+        <p>Current Latitude: {currentLocation.lat?.toFixed(6) || 'Not available'}</p>
+        <p>Current Longitude: {currentLocation.lng?.toFixed(6) || 'Not available'}</p>
+      </div>
       <table>
         <thead>
           <tr>
