@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 import '../styles/Attendance.css';
 
@@ -7,16 +7,10 @@ const Attendance = () => {
   const [status, setStatus] = useState('');
   const [notification, setNotification] = useState(null);
   const token = localStorage.getItem('employeeToken');
-  const isInitialMount = useRef(true); // Flag to track initial mount
 
   useEffect(() => {
-    // Skip initial double execution in Strict Mode
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-    } else {
-      loadAttendance();
-      checkLocation(); // Initial check
-    }
+    loadAttendance();
+    checkLocation(); // Initial check
 
     const interval = setInterval(checkLocation, 30000); // Check every 30 seconds
     return () => clearInterval(interval); // Cleanup interval on unmount
@@ -39,20 +33,27 @@ const Attendance = () => {
           setStatus(distance <= OFFICE_LOCATION.radius ? 'You are within the office boundary!' : 'You are outside the office boundary!');
 
           const today = new Date().toISOString().split('T')[0];
-          const attendance = await api.get('/attendance', { headers: { 'x-employee-token': token } }).then(res => 
-            res.data.find(log => log.date === today && !log.checkOut)
-          );
+          try {
+            const response = await api.get('/attendance', { headers: { 'x-employee-token': token } });
+            const attendance = response.data.find(log => log.date === today && !log.checkOut);
 
-          if (distance <= OFFICE_LOCATION.radius && !attendance) {
-            const response = await api.post('/checkin', {}, { headers: { 'x-employee-token': token } });
-            if (response.data.message.includes('Checked in')) {
-              const { title, body } = response.data.notification;
-              setNotification({ title, body });
-              sendNotification(title, body);
+            if (distance <= OFFICE_LOCATION.radius && !attendance) {
+              const response = await api.post('/checkin', {}, { headers: { 'x-employee-token': token } });
+              if (response.data.message && response.data.message.includes('Checked in')) {
+                const { title, body } = response.data.notification || { title: 'Check-in', body: 'Successfully checked in' };
+                setNotification({ title, body });
+                sendNotification(title, body);
+                // Reload attendance after check-in
+                loadAttendance();
+              }
+            } else if (distance > OFFICE_LOCATION.radius && attendance) {
+              await api.post('/checkout', {}, { headers: { 'x-employee-token': token } });
+              setNotification(null);
+              // Reload attendance after check-out
+              loadAttendance();
             }
-          } else if (distance > OFFICE_LOCATION.radius && attendance) {
-            await api.post('/checkout', {}, { headers: { 'x-employee-token': token } });
-            setNotification(null);
+          } catch (error) {
+            console.error('Error checking attendance status:', error);
           }
         },
         (error) => setStatus('Error fetching location: ' + error.message)
@@ -79,6 +80,7 @@ const Attendance = () => {
     if (!token) return;
     try {
       const response = await api.get('/attendance', { headers: { 'x-employee-token': token } });
+      console.log('Attendance data received:', response.data);
       setLogs(response.data);
     } catch (error) {
       console.error('Attendance fetch error:', error);
@@ -95,7 +97,31 @@ const Attendance = () => {
     }
   };
 
-  const OFFICE_LOCATION = { lat: 11.6457472, lng:  78.1221888, radius: 100 };
+  const OFFICE_LOCATION = { lat: 11.6457472, lng: 78.1221888, radius: 100 };
+
+  const formatTime = (timeString) => {
+    if (!timeString) return '-';
+    try {
+      return new Date(timeString).toLocaleTimeString();
+    } catch (error) {
+      console.error('Error formatting time:', error);
+      return timeString || '-';
+    }
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return '-';
+    // Return the date string directly if it's already formatted (like "YYYY-MM-DD")
+    if (typeof dateString === 'string' && dateString.includes('-')) {
+      return dateString;
+    }
+    try {
+      return new Date(dateString).toLocaleDateString();
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return dateString || '-';
+    }
+  };
 
   return (
     <div className="attendance-container">
@@ -121,9 +147,9 @@ const Attendance = () => {
           ) : (
             logs.map((log, index) => (
               <tr key={index}>
-                <td>{log.date || new Date(log._id?.getTimestamp()).toLocaleDateString() || '-'}</td>
-                <td>{log.checkIn ? new Date(log.checkIn).toLocaleTimeString() : '-'}</td>
-                <td>{log.checkOut ? new Date(log.checkOut).toLocaleTimeString() : '-'}</td>
+                <td>{formatDate(log.date)}</td>
+                <td>{formatTime(log.checkIn)}</td>
+                <td>{formatTime(log.checkOut)}</td>
               </tr>
             ))
           )}
