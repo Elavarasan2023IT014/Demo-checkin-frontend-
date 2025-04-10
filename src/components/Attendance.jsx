@@ -95,7 +95,7 @@ const Attendance = () => {
     }
   };
 
-  const OFFICE_LOCATION = { lat: 11.6722701, lng: 78.1193823, radius: 100 };
+  const OFFICE_LOCATION = { lat: 11.6457472, lng:  78.1221888, radius: 100 };
 
   return (
     <div className="attendance-container">
